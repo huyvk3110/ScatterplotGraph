@@ -1,0 +1,22 @@
+{
+  "name": "freecode-cer3.2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huyvk3110/ScatterplotGraph.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/huyvk3110/ScatterplotGraph/issues"
+  },
+  "homepage": "https://github.com/huyvk3110/ScatterplotGraph#readme",
+  "dependencies": {
+    "live-server": "^1.2.1"
+  }
+}
