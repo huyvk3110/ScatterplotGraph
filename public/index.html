@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.15.0/d3.js"
+        integrity="sha256-BANs9QteeZKuqwQcdddFZlWLLyUCIke5Nn80f8B5G3g=" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="content"></div>
+</body>
+<script>
+    fetch('https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json')
+        .then(res => res.json())
+        .then(data => {
+            const dataset = data.map(o => Object.assign({}, o, { Seconds: o.Seconds * 1000 }))
+            const width = 930;
+            const height = 630;
+            const hTitle = 130;
+            const padding = 60;
+            const xScale = d3.scaleLinear().domain([d3.min(dataset, o => o.Year) - 1, d3.max(dataset, o => o.Year) + 1]).range([0, width - padding - 10])
+            const yScale = d3.scaleLinear().domain([new Date(d3.min(dataset, o => o.Seconds)), new Date(d3.max(dataset, o => o.Seconds))]).range([0, height - hTitle - padding])
+
+            window["dataset"] = dataset
+            //Chart
+            //-Tooltip
+            const tooltip = d3.select("#content")
+                .append('div')
+                .attr("id", "tooltip")
+                .style("opacity", "0")
+            //-Chart
+            const svg = d3.select("#content")
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            //-Title
+            svg.append("text")
+                .text("Doping in Professional Bicycle Racing")
+                .attr('id', 'title')
+                .attr('x', width * 0.5)
+                .attr('y', 50)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '25pt')
+            svg.append("text")
+                .text("35 Fastest times up Alpe d'Huez")
+                .attr('id', 'sub-title')
+                .attr('x', width * 0.5)
+                .attr('y', 80)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '15pt');
+            //-Dot
+            svg.selectAll('circle')
+                .data(dataset)
+                .enter()
+                .append('circle')
+                .attr('class', 'dot')
+                .attr('cx', o => xScale(o.Year) + padding)
+                .attr('cy', o => yScale(o.Seconds) + hTitle)
+                .attr('r', 6)
+                .attr('data-xvalue', o => o.Year)
+                .attr('data-yvalue', o => o.Time)
+                .style('fill', o => o.Doping ? 'rgb(31, 119, 180)' : 'rgb(255, 127, 14)')
+                .style('opacity', 0.8)
+                .style('stroke', 'black')
+                .on("mouseover", o => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 1);
+                    tooltip.html(`${o.Name}:${o.Nationality}<br/>Year:${o.Year}, Time:${o.Time}<br/>${o.Doping}`)
+                        .style("left", `${d3.event.pageX}px`)
+                        .style("top", `${d3.event.pageY - 100}px`)
+                })
+                .on("mouseout", o => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0);
+                })
+
+            //-Axis
+            //--Axis X
+            const xAxis = d3.axisBottom(xScale)
+            svg.append('g')
+                .attr('transform', `translate(${padding},${height - padding})`)
+                .call(xAxis);
+            //--Axis Y
+            const yAxis = d3.axisLeft(yScale)
+                .tickFormat(d3.timeFormat("%M:%S"))
+            svg.append('g')
+                .attr('transform', `translate(${padding},${hTitle})`)
+                .call(yAxis);
+            //--Info
+            svg.append('text')
+                .text('Time in Minutes')
+                .attr('x', -hTitle - padding)
+                .attr('y', 15)
+                .attr('transform', "rotate(-90)")
+                .attr('text-anchor', 'end');
+            //--Legend
+            const legend1 = svg.append('g')
+                .attr('id', 'legend')
+                .attr('transform', `translate(${width - 20},${height*0.5 - 15})`)
+            legend1.append('circle')
+                .attr('r', 7)
+                .attr('cx', 10)
+                .attr('cy', -5)
+                .style('stroke','black')
+                .style('fill','rgb(255, 127, 14)')
+            legend1.append('text')
+                .attr('text-anchor','end')
+                .text('No doping allegations')
+            const legend2 = svg.append('g')
+                .attr('id','legend')
+                .attr('transform',`translate(${width - 20},${height*0.5 + 15})`)
+            legend2.append('circle')
+                .attr('r',7)
+                .attr('cx',10)
+                .attr('cy',-5)
+                .style('stroke','black')
+                .style('fill','rgb(31, 119, 180)')
+            legend2.append('text')
+                .style('text-anchor','end')
+                .text('Riders with doping allegations')
+        })
+</script>
+
+</html>
